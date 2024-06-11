@@ -8,36 +8,33 @@ const Home = () => {
   return (
     <section className="p-14">
       <div className="flex justify-between">
-        <div className="h-screen p-7 max-md:p-0">
+        <div className=" p-7 max-md:p-0">
           <div className="">
             <div className="flex flex-col">
               <span className="font-Bricolage font-bold text-5xl">
-                The One Stop Destination
+                Connecting Buyers and Sellers,
               </span>
               <span className="font-Bricolage font-bold text-5xl">
-                For Every Freelancer
+                One Click at a Time.
               </span>
             </div>
             <div className="mt-5">
               <span className="text-text-grey text-xl font-Bricolage font-medium">
-                Now your can hire and recuit top Freelancers in Nepal to your
-                needs.
+                Now you can buy and sell your item with a click.
               </span>
             </div>
             <div className="mt-16 flex justify-between">
               <div>
                 <div className="flex flex-col">
                   <span className="font-Bricolage text-2xl">
-                    I'm Freelancer
+                    Go to marketplace
                   </span>
                   <span className="font-Bricolage text-sm text-text-grey mt-5">
-                    Get the opportunity that boost
+                    Buy and sell items
                   </span>
-                  <span className="font-Bricolage text-sm text-text-grey mb-5">
-                    your design career
-                  </span>
+
                   <Button variant="ghost">
-                    <Link href="/login">
+                    <Link href="/marketplace">
                       <span className="font-Bricolage text-left">
                         Get Started
                       </span>
@@ -49,16 +46,14 @@ const Home = () => {
               <div>
                 <div className="flex flex-col">
                   <span className="font-Bricolage text-2xl">
-                    I want to hire
+                    Visit Auctions
                   </span>
                   <span className="font-Bricolage text-sm text-text-grey mt-5">
-                    Get the opportunity that boost
+                    Get the opportunity
                   </span>
-                  <span className="font-Bricolage text-sm text-text-grey mb-5">
-                    your design career
-                  </span>
+
                   <Button variant="ghost">
-                    <Link href="/login">
+                    <Link href="/auctions">
                       <span className="font-Bricolage">Get Started</span>
                     </Link>
                     <MoveUpRight />
@@ -70,48 +65,11 @@ const Home = () => {
         </div>
         <div className="max-md:hidden">
           <Image
-            src="/images/6683793.png"
+            src="/images/vector.png"
             width={400}
             height={300}
             alt="home page backgriund"
           />
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <div className="p-7 max-md:p-0">
-          <div className="">
-            <div className="flex flex-col">
-              <span className="font-Bricolage font-bold text-8xl">
-                Search ...
-              </span>
-            </div>
-
-            <div className="mt-8 flex">
-              <div>
-                <div className="flex flex-col">
-                  <span className="font-Bricolage text-2xl">
-                    I'm Freelancer
-                  </span>
-                  <span className="font-Bricolage text-sm text-text-grey">
-                    Get the opportunity that boost your design career{" "}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    className="hover:focus:bg-transparent"
-                  >
-                    <Link href="/login">
-                      <span className="font-Bricolage">Get Started</span>
-                    </Link>
-                    <MoveUpRight />
-                  </Button>
-                </div>
-              </div>
-              <div></div>
-            </div>
-          </div>
-        </div>
-        <div className="max-md:hidden">
-          <Image src="/images/6683793.png" width={400} height={300} alt="" />
         </div>
       </div>
     </section>

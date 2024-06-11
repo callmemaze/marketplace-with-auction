@@ -10,7 +10,7 @@ const Register = () => {
     <>
       <nav className="flex items-center justify-center p-4">
         <span className="text-lg font-Bricolage font-bold">
-          <Link href="/">LocalLance</Link>
+          <Link href="/">Marketplace</Link>
         </span>
       </nav>
       <div className="container h-screen flex items-center justify-center">
@@ -39,6 +39,7 @@ const Register = () => {
                       auto-complete="email"
                       auto-correct="off"
                     />
+
                     <Input
                       className="mt-2"
                       id="password"
