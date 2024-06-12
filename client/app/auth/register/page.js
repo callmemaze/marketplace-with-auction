@@ -1,11 +1,62 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { useCreateUserMutation } from "@/store/slices/userSlices";
+import { registerSchema } from "@/validation/schemas";
+import { useFormik } from "formik";
 
 const Register = () => {
+  const initialValues = {
+    name: "",
+    email: "",
+    password: "",
+  };
+  const [errorMessage, setErrorMessage] = useState("");
+  const [succcessMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+  const [createUser] = useCreateUserMutation();
+  const { values, errors, handleSubmit, handleChange } = useFormik({
+    initialValues,
+    validationSchema: registerSchema,
+    onSubmit: async (values, action) => {
+      setLoading(true);
+      try {
+        const response = await createUser(values);
+
+        if (response.data) {
+          setSuccessMessage(response.data);
+          setErrorMessage("");
+          action.resetForm();
+          setLoading(false);
+          localStorage.setItem("profile", JSON.stringify({ user: { data } }));
+          router.push("/");
+        }
+        if (response.error) {
+          setErrorMessage(response.error.message);
+          console.log(response);
+          toast({
+            title: "Oops Error",
+            variant: "destructive",
+            description: response.error.data.message,
+          });
+          setSuccessMessage("");
+          setLoading(false);
+        }
+      } catch (error) {
+        setLoading(false);
+        console.log(error);
+      }
+    },
+  });
+  console.log(errors);
   return (
     <>
       <nav className="flex items-center justify-center p-4">
@@ -25,16 +76,26 @@ const Register = () => {
               </p>
             </div>
             <div className={cn("grid gap-6")}>
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="grid gap-2">
                   <div className="grid gap-1">
-                    <Input id="name" placeholder="Name" type="text" />
+                    <Input
+                      id="name"
+                      placeholder="Name"
+                      type="text"
+                      name="name"
+                      value={values.name}
+                      onChange={handleChange}
+                    />
 
                     <Input
                       className="mt-2"
                       id="email"
                       placeholder="name@example.com"
                       type="email"
+                      name="email"
+                      value={values.email}
+                      onChange={handleChange}
                       auto-capitalize="none"
                       auto-complete="email"
                       auto-correct="off"
@@ -45,6 +106,9 @@ const Register = () => {
                       id="password"
                       placeholder="Password"
                       type="password"
+                      name="password"
+                      value={values.password}
+                      onChange={handleChange}
                     />
                   </div>
                   <Button type="submit">Sign Up with Email</Button>
@@ -56,7 +120,7 @@ const Register = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    <Link href="/login">Already have an account</Link>
+                    <Link href="/auth/login">Already have an account</Link>
                   </span>
                 </div>
               </div>

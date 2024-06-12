@@ -28,12 +28,6 @@ const Login = () => {
     initialValues,
     validationSchema: loginSchema,
     onSubmit: async (values, action) => {
-      toast({
-        title: "Error",
-        variant: "destructive",
-        description: errors.email,
-      });
-
       setLoading(true);
       try {
         const response = await loginUser(values);
@@ -41,8 +35,13 @@ const Login = () => {
         if (response.data) {
           setSuccessMessage(response.data);
           setErrorMessage("");
+          localStorage.setItem(
+            "profile",
+            JSON.stringify({ user: response.data })
+          );
           action.resetForm();
           setLoading(false);
+
           router.push("/");
         }
         if (response.error) {
@@ -62,8 +61,6 @@ const Login = () => {
       }
     },
   });
-
-  console.log(errors.email);
   return (
     <>
       <nav className="flex items-center justify-center p-4">

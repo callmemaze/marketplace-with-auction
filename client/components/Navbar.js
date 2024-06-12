@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,19 +8,28 @@ import { AlignLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useCycle } from "framer-motion";
 import MobileNav from "./MobileNav";
-import { SquarePlus } from "lucide-react";
+import { SquarePlus, Send } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut, Settings, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const ListItem = React.forwardRef(
   ({ className, title, children, ...props }, ref) => {
@@ -70,6 +79,24 @@ const sidebar = {
 const Navbar = () => {
   const [isOpen, toggleOpen] = useCycle(false, true);
   const containerRef = useRef(null);
+  const router = useRouter();
+  const [user, setUser] = useState();
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem("profile")));
+  }, []);
+
+  function getInitials(name) {
+    const initials = name
+      .split(" ") // Split the name into an array of words
+      .map((word) => word.charAt(0)) // Get the first letter of each word
+      .join("");
+    return initials;
+  }
+  const signout = () => {
+    localStorage.clear();
+    router.push("/auth/login");
+    setUser(null);
+  };
   return (
     <nav className="w-full h-16 p-3 ">
       <div className="w-full h-full flex justify-between items-center">
@@ -127,20 +154,74 @@ const Navbar = () => {
               <SquarePlus />
               <span> Post an item </span>
             </Button>
-            <div className="ml-2">
+            <div className="ml-3">
               <Separator
                 orientation="vertical"
                 className="bg-black w-[3px] h-[40px] "
               />
             </div>
           </div>
+          {user ? (
+            <div className="flex items-center ml-1">
+              <div className="ml-3 mr-4 cursor-pointer">
+                <Link href="/message">
+                  <Send />
+                </Link>
+              </div>
 
-          <Button variant="ghost">
-            <Link href="/auth/login">Login</Link>
-          </Button>
-          <Button variant="outline">
-            <Link href="/auth/register">Register</Link>
-          </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="cursor-pointer">
+                    <Avatar>
+                      <AvatarImage
+                        src={user.user.result.profile}
+                        alt="@profile"
+                      />
+                      <AvatarFallback>
+                        {getInitials(user.user.result.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                      <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                      <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <Button onClick={signout} variant="ghost">
+                      <span>Log out</span>
+                    </Button>
+
+                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <>
+              <Button variant="ghost">
+                <Link href="/auth/login">Login</Link>
+              </Button>
+              <Button variant="outline">
+                <Link href="/auth/register">Register</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>
