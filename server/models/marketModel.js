@@ -12,6 +12,7 @@ const userSchema = mongoose.Schema({
     required: true,
   },
   images: { type: Array, default: [] },
+  create_At: { type: Date, default: Date.now() },
 });
 
 export default mongoose.model("Market", userSchema);

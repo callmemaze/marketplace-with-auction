@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AlignLeft } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useCycle } from "framer-motion";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -13,7 +13,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useCycle } from "framer-motion";
+
 import MobileNav from "./MobileNav";
 import { SquarePlus, Send } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -127,7 +127,7 @@ const Navbar = () => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link href="/marketplace" legacyBehavior passHref>
+                  <Link href="/marketplaces" legacyBehavior passHref>
                     <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
                     >
@@ -152,7 +152,9 @@ const Navbar = () => {
           <div className="flex">
             <Button>
               <SquarePlus />
-              <span> Post an item </span>
+              <Link href="/postItem">
+                <span>Post an item</span>
+              </Link>
             </Button>
             <div className="ml-3">
               <Separator

@@ -4,7 +4,7 @@ import fs from "fs";
 
 export const getItems = async (req, res) => {
   try {
-    const items = await marketModel.find();
+    const items = await marketModel.find().populate("seller");
     res.status(200).json({ result: items });
   } catch (error) {
     res.status(404).json({ message: "Somethings Wrong" });
@@ -13,6 +13,7 @@ export const getItems = async (req, res) => {
 
 export const createItem = async (req, res) => {
   try {
+    console.log(req);
     const item = req.body;
     const files = req.files;
     const data = [];

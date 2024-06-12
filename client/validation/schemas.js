@@ -44,3 +44,15 @@ export const changePasswordSchema = Yup.object({
       "Password and Confirm Password doesn't match"
     ),
 });
+
+export const titleDetailsSchema = Yup.object({
+  title: Yup.string().required("Title is required"),
+  price: Yup.string().required("Price is required"),
+  images: Yup.mixed().required("Please upload an image"),
+});
+
+export const itemsDetailsSchema = Yup.object({
+  condition: Yup.string().required("Condition is required"),
+  location: Yup.string().required("Location is required"),
+  description: Yup.string().required("Description is required"),
+});

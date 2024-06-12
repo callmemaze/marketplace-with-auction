@@ -1,20 +1,13 @@
 import { Metadata } from "next";
 import { ReactNode } from "react";
 
-import Navbar from "@/components/Navbar";
-
 export const metadata = {
-  title: "LocalLance",
-  description: "A platform for freelancing.",
+  title: "Marketplace",
+  description: "A platform for buyer and seller.",
 };
 
 const HomeLayout = ({ children }) => {
-  return (
-    <main className="relative">
-      <Navbar />
-      {children}
-    </main>
-  );
+  return <main className="relative">{children}</main>;
 };
 
 export default HomeLayout;
