@@ -1,5 +1,5 @@
 import express from "express";
-import { createItem, getItems } from "../controllers/marketplace.js";
+import { createItem, getItems, getItem } from "../controllers/marketplace.js";
 import auth from "../middleware/auth.js";
 import multer from "multer";
 import path from "path";
@@ -31,6 +31,7 @@ const upload = multer({
 const router = express.Router();
 
 router.get("/", auth, getItems);
+router.get("/:id", auth, getItem);
 router.post("/create-item", auth, upload.array("images"), createItem);
 //router.delete("/delete-room/:id", auth, deleteRoom);
 

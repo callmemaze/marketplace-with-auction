@@ -29,7 +29,7 @@ export const itemApi = createApi({
         };
       },
     }),
-    getItems: builder.query({
+    getItem: builder.query({
       query: (id) => {
         return {
           url: `/${id}`,
@@ -40,4 +40,5 @@ export const itemApi = createApi({
   }),
 });
 
-export const { useCreateItemMutation, useGetItemsQuery } = itemApi;
+export const { useCreateItemMutation, useGetItemsQuery, useGetItemQuery } =
+  itemApi;

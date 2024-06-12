@@ -11,6 +11,16 @@ export const getItems = async (req, res) => {
   }
 };
 
+export const getItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const items = await marketModel.findById(id).populate("seller");
+    res.status(200).json({ result: items });
+  } catch (error) {
+    res.status(404).json({ message: "Somethings Wrong" });
+  }
+};
+
 export const createItem = async (req, res) => {
   try {
     console.log(req);
