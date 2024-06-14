@@ -38,6 +38,14 @@ export const authApi = createApi({
         };
       },
     }),
+    getUser: builder.query({
+      query: (id) => {
+        return {
+          url: `/findUser/${id}`,
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
@@ -45,4 +53,5 @@ export const {
   useCreateUserMutation,
   useLoginUserMutation,
   useLogoutUserMutation,
+  useGetUserQuery,
 } = authApi;

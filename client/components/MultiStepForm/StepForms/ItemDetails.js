@@ -55,9 +55,6 @@ export default function ItemDetails() {
       }
     },
   });
-  async function processData(data) {
-    console.log(data);
-  }
 
   return (
     <form

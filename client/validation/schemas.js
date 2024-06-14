@@ -56,3 +56,17 @@ export const itemsDetailsSchema = Yup.object({
   location: Yup.string().required("Location is required"),
   description: Yup.string().required("Description is required"),
 });
+
+export const auctionSchema = Yup.object({
+  name: Yup.string().required("Name is required"),
+  price: Yup.string().required("Price is required"),
+  images: Yup.mixed().required("Please upload an image"),
+  start_bid_date: Yup.string()
+    .required("Start bid Time is required")
+    .oneOf(["1m", "1h", "1d"]),
+  details: Yup.string().required("Details is required"),
+});
+
+export const messageSchema = Yup.object({
+  text: Yup.string().required("Message is required"),
+});

@@ -150,10 +150,16 @@ const Navbar = () => {
         </div>
         <div className="flex items-center">
           <div className="flex">
-            <Button>
+            <Button className="mr-2">
               <SquarePlus />
               <Link href="/postItem">
                 <span>Post an item</span>
+              </Link>
+            </Button>
+            <Button>
+              <SquarePlus />
+              <Link href="/addAuctionItem">
+                <span>Auction an item</span>
               </Link>
             </Button>
             <div className="ml-3">
