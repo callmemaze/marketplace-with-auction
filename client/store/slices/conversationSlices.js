@@ -40,5 +40,9 @@ export const convoApi = createApi({
   }),
 });
 
-export const { useCreateConvoMutation, useGetConvoQuery, useGetConvosQuery } =
-  convoApi;
+export const {
+  useCreateConvoMutation,
+  useGetConvoQuery,
+  useGetConvosQuery,
+  useLazyGetConvosQuery,
+} = convoApi;

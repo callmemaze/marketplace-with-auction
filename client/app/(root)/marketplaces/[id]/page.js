@@ -10,22 +10,127 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import ChatBox from "@/components/ChatBox";
+import {
+  useCreateConvoMutation,
+  useGetConvosQuery,
+  useLazyGetConvosQuery,
+} from "@/store/slices/conversationSlices";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
   const { data, isSuccess, isLoading } = useGetItemQuery(params.id);
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [newConvo, setNewConvo] = useState([]);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [secondUser, setSecondUser] = useState();
+  const [count, setCount] = useState(0);
+  const [user, setUser] = useState();
+  const userProfile = JSON.parse(localStorage.getItem("profile"));
+  useEffect(() => {
+    setUser(userProfile.user.result._id);
+  }, []);
+
+  useEffect(() => {
+    arrivalMessage &&
+      conversations?.members.includes(arrivalMessage.sender) &&
+      setMessages((prev) => [...prev, arrivalMessage]);
+    setCount((prevCount) => prevCount + 1);
+  }, [arrivalMessage, conversations]);
+
+  console.log(count);
+
   useEffect(() => {
     if (data && isSuccess) {
       const { result } = data;
       setItems(result);
     }
   }, [data, isSuccess]);
-  console.log(items);
+
+  useEffect(() => {
+    if (items) {
+      setSecondUser(items.seller._id);
+    }
+  }, [items]);
+
+  //console.log(conversations);
   const [progress, setProgress] = React.useState(25);
   useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+  console.log(secondUser);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/conversation/find/${user}/${secondUser}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const result = await response.json();
+        setConversations(result);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [user, secondUser]);
+
+  const fetchMessage = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/message/${conversations._id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const result = await response.json();
+      setMessages(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(conversations);
+  const [createConvo] = useCreateConvoMutation();
+
+  const createConv = async (data) => {
+    try {
+      const response = await createConvo(data);
+      if (response.error) {
+        console.log(response.error.data);
+      }
+      console.log(response);
+      setNewConvo(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSubmit = () => {
+    setIsChatOpen(!isChatOpen);
+    if (conversations) {
+      fetchMessage();
+    } else {
+      const data = {
+        senderId: user,
+        receiverId: secondUser,
+      };
+      createConv(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessage();
+  }, [messages, conversations]);
   return items && !isLoading ? (
     <div className="p-24 flex justify-center items-center">
       <div>
@@ -63,11 +168,13 @@ const page = ({ params }) => {
           <Separator className="text-text-grey w-[300px] h-[2px]" />
         </div>
         <div className="flex justify-center items-center mt-3 w-full">
-          <Button variant="ghost" className="flex items-center w-full">
+          <Button
+            variant="ghost"
+            className="flex items-center w-full"
+            onClick={handleSubmit}
+          >
             <MessageSquareText />
-            <Link href="/message" className="text-lg font-Bricolage ml-1">
-              Chat
-            </Link>
+            <span className="text-lg font-Bricolage ml-1">Chat</span>
           </Button>
         </div>
       </div>
@@ -135,6 +242,15 @@ const page = ({ params }) => {
           className="text-text-grey w-[2px] h-[470px]"
         />
       </div>
+      {isChatOpen && (
+        <ChatBox
+          onClose={toggleChat}
+          messages={messages}
+          user={userProfile}
+          conversationsId={conversations._id ? conversations._id : newConvo._id}
+          currentChat={conversations ? conversations : newConvo}
+        />
+      )}
     </div>
   ) : (
     <div className="flex flex-col justify-center items-center h-[80vh]">
