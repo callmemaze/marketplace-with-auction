@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRouter } from "next/router";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
@@ -35,6 +36,12 @@ const page = ({ params }) => {
   const [bidderInfo, setBidderInfo] = useState({});
   const [highestBid, setHighestBid] = useState();
   const userProfile = JSON.parse(localStorage.getItem("profile"));
+  const router = useRouter();
+  useEffect(() => {
+    if (!userProfile) {
+      router.push("auth/login");
+    }
+  }, [userProfile]);
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:8082");
     setSocket(socket);

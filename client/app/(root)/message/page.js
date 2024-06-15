@@ -23,6 +23,7 @@ const page = () => {
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useRef();
   const { toast } = useToast();
+
   useEffect(() => {
     socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage", (data) => {

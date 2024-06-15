@@ -37,7 +37,7 @@ const Register = () => {
           action.resetForm();
           setLoading(false);
           localStorage.setItem("profile", JSON.stringify({ user: { data } }));
-          router.push("/");
+          router.push("/auth/login");
         }
         if (response.error) {
           setErrorMessage(response.error.message);

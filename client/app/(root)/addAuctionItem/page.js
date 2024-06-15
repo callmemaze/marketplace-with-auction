@@ -1,6 +1,6 @@
 "use client";
 import { useFormik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 const page = () => {
   const initialValues = {
     name: "",
@@ -25,9 +24,16 @@ const page = () => {
     price: "",
     details: "",
   };
+
   const [createAuctionItem] = useCreateAuctionItemMutation();
   const { toast } = useToast();
   const router = useRouter();
+  const userProfile = JSON.parse(localStorage.getItem("profile"));
+  useEffect(() => {
+    if (!userProfile) {
+      router.push("auth/login");
+    }
+  }, [userProfile]);
   const [errorMessage, setErrorMessage] = useState("");
   const handleSelect = (e) => {
     initialValues.start_bid_date = e;

@@ -11,12 +11,8 @@ import React, { useEffect, useState } from "react";
 import { MessageSquareText } from "lucide-react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import ChatBox from "@/components/ChatBox";
-import {
-  useCreateConvoMutation,
-  useGetConvosQuery,
-  useLazyGetConvosQuery,
-} from "@/store/slices/conversationSlices";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useCreateConvoMutation } from "@/store/slices/conversationSlices";
+import { useRouter } from "next/router";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
@@ -29,6 +25,12 @@ const page = ({ params }) => {
   const [count, setCount] = useState(0);
   const [user, setUser] = useState();
   const userProfile = JSON.parse(localStorage.getItem("profile"));
+  const router = useRouter();
+  useEffect(() => {
+    if (!userProfile) {
+      router.push("auth/login");
+    }
+  }, [userProfile]);
   useEffect(() => {
     setUser(userProfile.user.result._id);
   }, []);

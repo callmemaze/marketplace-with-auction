@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Progress } from "@/components/ui/progress";
 import { useGetItemsQuery } from "@/store/slices/itemSlices";
 import ItemCards from "@/components/ItemCards";
+import { useRouter } from "next/router";
 
 const MarketPlaces = () => {
   const [items, setItems] = useState();

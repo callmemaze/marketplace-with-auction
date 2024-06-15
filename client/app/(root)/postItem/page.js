@@ -1,6 +1,8 @@
+"use client";
 import StepForm from "@/components/MultiStepForm/StepForm";
 import Steps from "@/components/MultiStepForm/Steps";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 
 export default function PostItem() {
   const steps = [
