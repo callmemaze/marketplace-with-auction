@@ -5,10 +5,18 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import moment from "moment/moment";
 import Image from "next/image";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useGetAuctionItemQuery } from "@/store/slices/auctionItemSlices";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
@@ -18,79 +26,76 @@ const page = ({ params }) => {
   const [socket, setSocket] = useState();
   const [timeLeft, setTimeLeft] = useState(0);
 
+  const [currentBid, setCurrentBid] = useState(0);
+  const [bidInput, setBidInput] = useState("");
+  const [status, setStatus] = useState("");
+  const [item, setItem] = useState(null);
+  const [winner, setWinner] = useState();
+  const [sold, setSold] = useState();
+  const [bidderInfo, setBidderInfo] = useState({});
+  const [highestBid, setHighestBid] = useState();
+  const userProfile = JSON.parse(localStorage.getItem("profile"));
   useEffect(() => {
-    // WebSocket connection
-    const userProfile = JSON.parse(localStorage.getItem("profile"));
-    const socket = new WebSocket(
-      `ws://localhost:8080?token=${userProfile.user.result._id}`
-    );
+    const socket = new WebSocket("ws://localhost:8082");
     setSocket(socket);
     socket.onopen = () => {
       console.log("connected to the server");
     };
-
     socket.onmessage = (event) => {
-      const parsed = JSON.parse(event.data);
-      const input = document.querySelector('.add-bid input[type="number"]');
-      const previousBids = document.querySelector(".previous-bids .content");
+      const data = JSON.parse(event.data);
 
-      switch (parsed.type) {
-        case "itemPlaced":
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+      switch (data.type) {
+        case "itemAdded":
+          setItem(data.item);
+          setStatus("Item added. You can bid now!");
           break;
-        case "inWait":
-          setMode("inWait");
-          document.querySelector(".circle-bid").style.backgroundColor =
-            "#E6F4F7";
-          activeBorder.style.backgroundColor = "#39B4CC";
-          activeBorder.style.backgroundImage =
-            "linear-gradient(90deg, transparent 50%, #A2ECFB 50%),linear-gradient(90deg, #A2ECFB 50%, transparent 50%)";
-          // More React-like way of setting content
-          setCircleContent(
-            <>
-              <h6>Bid starts in:</h6>
-              <h5 id="endtime"></h5>
-            </>
+        case "newBid":
+          console.log(data);
+          setCurrentBid(data.bidAmount);
+          setBidderInfo((prev) => ({
+            ...prev,
+            [data.bidder]: data.bidAmount,
+          }));
+          setStatus(`${data.bidder} placed a bid: $${data.bidAmount}`);
+          break;
+        case "auctionEnded":
+          setStatus(
+            `Auction ended. Winner: ${data.winner}. Price: $${data.price}`
           );
-          initializeClock(parsed.content.currentItem[0].start_bid_date);
+          setSold(data.sold);
+          setWinner(data.winner);
+          setHighestBid(data.price);
+          setItem(null);
+          setCurrentBid(0);
           break;
-        case "bidStart":
-          setMode("bidStart");
-          document.querySelector(".circle-bid").style.backgroundColor =
-            "#E6F4F7";
-          timer(parsed.content.degree, parsed.type);
-          activeBorder.style.backgroundColor = "#39B4CC";
-          activeBorder.style.backgroundImage =
-            "linear-gradient(90deg, transparent 50%, #A2ECFB 50%),linear-gradient(90deg, #A2ECFB 50%, transparent 50%)";
-          // More React-like way of setting content
-          setCircleContent(
-            <>
-              <p>Current Price: </p>
-              <p style={{ fontWeight: "bold" }}>
-                {parsed.content.current_price}$
-              </p>
-            </>
-          );
-          clockAudio("play");
-          break;
-        // Handle other cases similarly
         default:
           break;
       }
     };
-
-    // Cleanup function
-    return () => {
-      // Close WebSocket connection
-      socket.close();
-    };
+    return () => {};
   }, []);
-  const sendBid = () => {
-    socket.send(JSON.stringify({ type: "addBid", price: 100 }));
-  };
 
+  const placeBid = () => {
+    if (bidInput && parseInt(bidInput) > currentBid) {
+      const bidAmount = parseInt(bidInput);
+      const currentUser = JSON.parse(localStorage.getItem("profile"));
+      const bidder = currentUser.user.result.name; // Replace with actual user identification
+      const bidder_id = currentUser.user.result._id;
+      socket.send(
+        JSON.stringify({ type: "placeBid", bidder, bidAmount, bidder_id })
+      );
+      setBidInput("");
+    } else {
+      toast({
+        title: "Your bid must be higher than current price",
+        variant: "destructive",
+      });
+    }
+  };
+  const startAuction = (item) => {
+    socket.send(JSON.stringify({ type: "addItem", item }));
+  };
+  console.log(status);
   const { data, isSuccess, isLoading } = useGetAuctionItemQuery(params.id);
   useEffect(() => {
     if (data && isSuccess) {
@@ -99,14 +104,12 @@ const page = ({ params }) => {
       setTimeLeft(result.start_bid_date);
     }
   }, [data, isSuccess]);
-  console.log(items);
+
   const [progress, setProgress] = React.useState(25);
   useEffect(() => {
     const timer = setTimeout(() => setProgress(66), 500);
     return () => clearTimeout(timer);
   }, []);
-
-  console.log(timeLeft);
 
   useEffect(() => {
     // Exit early when we reach 0
@@ -185,11 +188,96 @@ const page = ({ params }) => {
         <div className="mt-5">
           <span className="font-Bricolage text-xl">Bidding</span>
         </div>
-        <div className="mt-3">
-          <Input className="mb-3" type="number" value={items.price} />
-          <Button onClick={sendBid}>Send Bid</Button>
+        <div>
+          {status ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">User</TableHead>
+                  <TableHead>Start Bid</TableHead>
+                  <TableHead>Bid</TableHead>
+                  <TableHead className="text-right">Highest Bidder</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Object.keys(bidderInfo).map((x) => {
+                  return (
+                    <TableRow>
+                      <TableCell className="font-medium">{x}</TableCell>
+                      <TableCell>{item?.startingPrice}</TableCell>
+                      <TableCell>{bidderInfo[x]}</TableCell>
+                      <TableCell className="text-right">{currentBid}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          ) : (
+            <span className="font-Bricolage"> No bids placed yet. </span>
+          )}
         </div>
-        <p>Time Remaining: {formattedTime}</p>
+        {items.sold === true ? (
+          <div>
+            {" "}
+            <span className="font-Bricolage">
+              {" "}
+              Item already sold to {items.winner}{" "}
+            </span>
+          </div>
+        ) : (
+          <div className="mt-3">
+            {item ? (
+              <div>
+                {items.user._id !== userProfile.user.result._id ? (
+                  <>
+                    <Input
+                      className="mt-2"
+                      type="number"
+                      placeholder="Enter bid amount"
+                      value={bidInput}
+                      onChange={(e) => setBidInput(e.target.value)}
+                    />
+                    <Button className="mt-4" onClick={placeBid}>
+                      Place Bid
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            ) : items.user._id === userProfile.user.result._id &&
+              sold !== true ? (
+              <Button
+                onClick={() =>
+                  startAuction({
+                    id: items._id,
+                    name: items.name,
+                    startingPrice: items.price,
+                  })
+                }
+              >
+                Start Auction
+              </Button>
+            ) : (
+              <div>
+                {sold !== true ? (
+                  <span className="font-Bricolage">
+                    {" "}
+                    Auction Not Started Yet{" "}
+                  </span>
+                ) : null}
+              </div>
+            )}
+          </div>
+        )}
+        {winner ? (
+          <div className="mt-4 flex flex-col">
+            <span className="font-Bricolage text-destructive">
+              Auction Ended{" "}
+            </span>
+            <span className="font-Bricolage">
+              Item sold to {winner} with highest bids {highestBid}{" "}
+            </span>
+          </div>
+        ) : null}
       </div>
       <div className="ml-3">
         <Separator
