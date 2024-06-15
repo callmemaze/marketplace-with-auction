@@ -29,18 +29,25 @@ function endAuction() {
   if (highestBidder) {
     // Notify winner
 
-    itemBidModel.findByIdAndUpdate(
-      currentItem.id,
-      { sold: true, price: currentHighestBid, winner: highestBidder },
-      { new: true }
-    );
-
+    itemBidModel
+      .findByIdAndUpdate(
+        currentItem.id,
+        {
+          sold: true,
+          price: currentHighestBid,
+          winner: highestBidder,
+          winnerId: bidderId,
+        },
+        { new: true }
+      )
+      .then((updatedItem) => {});
     wss.clients.forEach((client) => {
       client.send(
         JSON.stringify({
           type: "auctionEnded",
           winner: highestBidder,
           price: currentHighestBid,
+          sold: true,
         })
       );
     });

@@ -15,6 +15,7 @@ const auctionItemSchema = mongoose.Schema({
   bidded: { type: Boolean, default: false },
   sold: { type: Boolean, default: false },
   winner: { type: String },
+  winnerId: { type: String },
 });
 
 export default mongoose.model("AuctionItem", auctionItemSchema);

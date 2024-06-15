@@ -5,7 +5,6 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import moment from "moment/moment";
 import Image from "next/image";
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useGetAuctionItemQuery } from "@/store/slices/auctionItemSlices";
 import { Input } from "@/components/ui/input";
@@ -13,13 +12,11 @@ import { toast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import TableBid from "@/components/TableBid";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
@@ -34,7 +31,7 @@ const page = ({ params }) => {
   const [status, setStatus] = useState("");
   const [item, setItem] = useState(null);
   const [winner, setWinner] = useState();
-
+  const [sold, setSold] = useState();
   const [bidderInfo, setBidderInfo] = useState({});
   const [highestBid, setHighestBid] = useState();
   const userProfile = JSON.parse(localStorage.getItem("profile"));
@@ -65,7 +62,7 @@ const page = ({ params }) => {
           setStatus(
             `Auction ended. Winner: ${data.winner}. Price: $${data.price}`
           );
-
+          setSold(data.sold);
           setWinner(data.winner);
           setHighestBid(data.price);
           setItem(null);
@@ -130,8 +127,7 @@ const page = ({ params }) => {
     return () => clearInterval(intervalId);
   }, [timeLeft]);
   const formattedTime = moment.utc(timeLeft * 1000).format("HH:mm:ss");
-  console.log(items);
-  console.log(bidderInfo);
+
   return items && !isLoading ? (
     <div className="p-24 flex justify-center items-center">
       <div>
@@ -249,7 +245,8 @@ const page = ({ params }) => {
                   </>
                 ) : null}
               </div>
-            ) : items.user._id === userProfile.user.result._id ? (
+            ) : items.user._id === userProfile.user.result._id &&
+              sold !== true ? (
               <Button
                 onClick={() =>
                   startAuction({
@@ -263,10 +260,12 @@ const page = ({ params }) => {
               </Button>
             ) : (
               <div>
-                <span className="font-Bricolage">
-                  {" "}
-                  Auction Not Started Yet{" "}
-                </span>
+                {sold !== true ? (
+                  <span className="font-Bricolage">
+                    {" "}
+                    Auction Not Started Yet{" "}
+                  </span>
+                ) : null}
               </div>
             )}
           </div>
