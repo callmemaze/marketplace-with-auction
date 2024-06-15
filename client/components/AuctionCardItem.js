@@ -79,11 +79,15 @@ const AuctionItemCards = ({ item }) => {
       </CardContent>
       <CardFooter className="w-full">
         <div className="w-full">
-          <Button className="w-full">
-            <Link href={`/auctions/[id]`} as={`/auctions/${item._id}`}>
-              Bid your price
-            </Link>
-          </Button>
+          {!item.sold ? (
+            <Button className="w-full">
+              <Link href={`/auctions/[id]`} as={`/auctions/${item._id}`}>
+                Bid your price
+              </Link>
+            </Button>
+          ) : (
+            <div className="text-red-500">Sold</div>
+          )}
         </div>
       </CardFooter>
     </Card>

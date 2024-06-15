@@ -36,11 +36,11 @@ export const createAuctionItem = async (req, res) => {
     }
     console.log(item.start_bid_date);
     if (item.start_bid_date == "1m") {
-      item.start_bid_date = new Date().getTime() + 60000;
+      item.start_bid_date = 60;
     } else if (item.start_bid_date == "1h") {
-      item.start_bid_date = new Date().getTime() + 3600000;
+      item.start_bid_date = 3600;
     } else if (item.start_bid_date == "1d") {
-      item.start_bid_date = new Date().getTime() + 86400000;
+      item.start_bid_date = 24 * 60 * 60;
     }
     const newItemPost = new auctionItemSchema({
       ...item,

@@ -6,10 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import moment from "moment/moment";
 import Image from "next/image";
 import Link from "next/link";
-import React, { use, useEffect, useState } from "react";
-import { MessageSquareText } from "lucide-react";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import React, { useEffect, useState } from "react";
 import { useGetAuctionItemQuery } from "@/store/slices/auctionItemSlices";
+import { Input } from "@/components/ui/input";
 
 const page = ({ params }) => {
   const [items, setItems] = useState();
@@ -17,6 +16,8 @@ const page = ({ params }) => {
   const [mode, setMode] = useState("");
   const [activeBorder, setActiveBorder] = useState(null);
   const [socket, setSocket] = useState();
+  const [timeLeft, setTimeLeft] = useState(0);
+
   useEffect(() => {
     // WebSocket connection
     const userProfile = JSON.parse(localStorage.getItem("profile"));
@@ -95,6 +96,7 @@ const page = ({ params }) => {
     if (data && isSuccess) {
       const { result } = data;
       setItems(result);
+      setTimeLeft(result.start_bid_date);
     }
   }, [data, isSuccess]);
   console.log(items);
@@ -103,6 +105,24 @@ const page = ({ params }) => {
     const timer = setTimeout(() => setProgress(66), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  console.log(timeLeft);
+
+  useEffect(() => {
+    // Exit early when we reach 0
+    if (!timeLeft) return;
+
+    // Save intervalId to clear the interval when the component unmounts
+    const intervalId = setInterval(() => {
+      // Set time left
+      setTimeLeft(timeLeft - 1);
+    }, 1000);
+
+    // Clear interval on unmount
+    return () => clearInterval(intervalId);
+  }, [timeLeft]);
+  const formattedTime = moment.utc(timeLeft * 1000).format("HH:mm:ss");
+
   return items && !isLoading ? (
     <div className="p-24 flex justify-center items-center">
       <div>
@@ -165,9 +185,11 @@ const page = ({ params }) => {
         <div className="mt-5">
           <span className="font-Bricolage text-xl">Bidding</span>
         </div>
-        <div>
+        <div className="mt-3">
+          <Input className="mb-3" type="number" value={items.price} />
           <Button onClick={sendBid}>Send Bid</Button>
         </div>
+        <p>Time Remaining: {formattedTime}</p>
       </div>
       <div className="ml-3">
         <Separator

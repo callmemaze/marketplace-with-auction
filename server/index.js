@@ -10,6 +10,8 @@ import websocketRoutes from "./routes/websocket.js";
 import conversationRoutes from "./routes/conversation.js";
 import messageRoutes from "./routes/message.js";
 import socketRoutes from "./routes/socket.js";
+import bidRoutes from "./routes/bid.js";
+
 dotenv.config();
 
 const app = express();
@@ -26,6 +28,8 @@ app.use("/", websocketRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/message", messageRoutes);
 app.use(socketRoutes);
+app.use(bidRoutes);
+
 const PORT = process.env.PORT || 8000;
 const CONNECTION_URI = process.env.CONNECTION_URI;
 

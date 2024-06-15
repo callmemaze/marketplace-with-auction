@@ -7,7 +7,7 @@ import UserModel from "../models/userModel.js";
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8081 });
 
 let message = {
   type: "noItem",
@@ -104,14 +104,14 @@ async function pickItem() {
 
 pickItem();
 
-router.get("/", (req, res) => {
+router.get("/", auth, (req, res) => {
   (async () => {
     try {
       if (
         message.type !== "noItem" &&
         message.content.currentItem[0] !== undefined
       ) {
-        let loggedInUser = await req.user;
+        let loggedInUser = await req.userId;
         let previous_bids = [];
         let currentItem = message.content.currentItem;
         let arr = [];
@@ -122,17 +122,14 @@ router.get("/", (req, res) => {
           let prop = message.content.previousBidsUser[arr[n]];
           previous_bids.push(prop);
         }
-        let category = await Categories.find({
-          _id: currentItem[0].category_id,
-        });
+
         let owner = await UserModel.find({ _id: currentItem[0].user_id });
         let currentPrice = message.content.current_price;
         let previousBids = message.content.previousBidsUser;
         let startBidDate = message.content.currentItem.start_bid_date;
-        res.render("home", {
+        res.status(200).json({
           currentItem,
           previousBids,
-          category,
           owner,
           currentPrice,
           previous_bids,
@@ -141,7 +138,7 @@ router.get("/", (req, res) => {
         });
       } else {
         let noItem = true;
-        res.render("home", { noItem });
+        res.status(200).json({ noItem });
       }
     } catch (err) {
       console.log(err);
@@ -274,10 +271,10 @@ wss.on("connection", function connection(ws, req) {
       if (user) {
         ws.user = user;
       } else {
-        us.user = undefined;
+        ws.user = undefined;
       }
     })();
-  } else ws.user = undefined;
+  }
 
   ws.on("message", function incoming(data) {
     let parsed = JSON.parse(data);
