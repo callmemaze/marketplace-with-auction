@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import AuctionItemCards from "@/components/AuctionCardItem";
 import { useGetAuctionItemsQuery } from "@/store/slices/auctionItemSlices";
 
-const page = () => {
+const AuctionPage = () => {
   const [items, setItems] = useState();
   const { data, isSuccess, isLoading } = useGetAuctionItemsQuery();
 
@@ -24,7 +24,7 @@ const page = () => {
     <div className="grid grid-cols-3 gap-3 p-10">
       {items.map((item) => (
         <div key={item._id} className="grid w-[400px]">
-          <AuctionItemCards item={item} />
+          <AuctionItemCards item={item} key={item._id} />
         </div>
       ))}
     </div>
@@ -36,4 +36,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AuctionPage;

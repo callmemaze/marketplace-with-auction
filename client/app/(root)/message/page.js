@@ -1,7 +1,7 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetConvoQuery } from "@/store/slices/conversationSlices";
@@ -16,14 +16,14 @@ import { messageSchema } from "@/validation/schemas";
 import { io } from "socket.io-client";
 import { useToast } from "@/components/ui/use-toast";
 
-const page = () => {
+const MessagePage = () => {
   const [conversations, setConversations] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useRef();
   const { toast } = useToast();
-
+  const [user, setUser] = useState();
   useEffect(() => {
     socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage", (data) => {
@@ -41,10 +41,12 @@ const page = () => {
       setMessages((prev) => [...prev, arrivalMessage]);
   }, [arrivalMessage, currentChat]);
 
-  const userProfile = JSON.parse(localStorage.getItem("profile"));
-  const { data, isSuccess, isLoading } = useGetConvoQuery(
-    userProfile.user.result._id
-  );
+  useEffect(() => {
+    const userProfile = JSON.parse(localStorage.getItem("profile"));
+    setUser(userProfile);
+  }, []);
+
+  const { data, isSuccess, isLoading } = useGetConvoQuery(user?.result?._id);
   useEffect(() => {
     if (data && isSuccess) {
       setConversations(data);
@@ -61,13 +63,13 @@ const page = () => {
   }, [message, currentChat]);
 
   useEffect(() => {
-    socket.current.emit("addUser", userProfile.user.result._id);
+    socket.current.emit("addUser", user?.result?._id);
     socket.current.on("getUsers", (users) => {});
-  }, [userProfile.user.result]);
+  }, [user?.result]);
 
   const initialValues = {
     text: "",
-    sender: userProfile.user.result._id,
+    sender: user?.result?._id,
     conversationId: "",
   };
   const [createMessage] = useCreateMessageMutation();
@@ -78,15 +80,15 @@ const page = () => {
   const handleSubmits = async (e) => {
     e.preventDefault();
     const message = {
-      sender: userProfile.user.result._id,
+      sender: user?.result?._id,
       text: newMessage,
       conversationId: currentChat._id,
     };
     const receiverId = currentChat.members.find(
-      (member) => member !== userProfile.user.result._id
+      (member) => member !== user?.result?._id
     );
     socket.current.emit("sendMessage", {
-      senderId: userProfile.user.result._id,
+      senderId: user?.result?._id,
       receiverId,
       text: values.text,
     });
@@ -117,11 +119,11 @@ const page = () => {
     onSubmit: async (values, action) => {
       values.conversationId = currentChat._id;
       const receiverId = currentChat.members.find(
-        (member) => member !== userProfile.user.result._id
+        (member) => member !== user?.result?._id
       );
 
       socket.current.emit("sendMessage", {
-        senderId: userProfile.user.result._id,
+        senderId: user?.result?._id,
         receiverId,
         text: values.text,
       });
@@ -157,8 +159,12 @@ const page = () => {
           <div className="p-2 mt-2 w-full h-10">
             {conversations && !isLoading
               ? conversations.map((c) => (
-                  <div onClick={() => setCurrentChat(c)}>
-                    <Conversation conversation={c} currentUser={userProfile} />
+                  <div onClick={() => setCurrentChat(c)} key={c._id}>
+                    <Conversation
+                      conversation={c}
+                      currentUser={user}
+                      key={c._id}
+                    />
                   </div>
                 ))
               : null}
@@ -172,7 +178,8 @@ const page = () => {
             {messages?.map((m) => (
               <Message
                 message={m}
-                own={m.sender === userProfile.user.result._id}
+                own={m.sender === user?.result?._id}
+                key={m.sender}
               />
             ))}
           </div>
@@ -197,4 +204,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default MessagePage;

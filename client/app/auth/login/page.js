@@ -118,7 +118,7 @@ const Login = () => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    <Link href="/auth/register">Don't have an account?</Link>
+                    <Link href="/auth/register">Dont have an account?</Link>
                   </span>
                 </div>
               </div>
@@ -138,7 +138,6 @@ const Login = () => {
               >
                 Privacy Policy
               </a>
-              .
             </p>
           </div>
         </div>

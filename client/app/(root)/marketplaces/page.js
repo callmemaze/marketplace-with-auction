@@ -27,7 +27,7 @@ const MarketPlaces = () => {
     <div className="grid grid-cols-3 gap-3 p-10">
       {items.map((item) => (
         <div key={item._id} className="grid w-[400px]">
-          <ItemCards item={item} />
+          <ItemCards item={item} key={item._id} />
         </div>
       ))}
     </div>

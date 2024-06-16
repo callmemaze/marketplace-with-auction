@@ -52,7 +52,11 @@ const ChatBox = ({ onClose, messages, user, conversationsId, currentChat }) => {
       </div>
       <div className="flex-1 p-4 overflow-y-auto">
         {messages?.map((m) => (
-          <Message message={m} own={m.sender === user.result?._id} />
+          <Message
+            message={m}
+            own={m.sender === user.result?._id}
+            key={m.sender}
+          />
         ))}
       </div>
       <form onSubmit={handleSubmit}>

@@ -14,7 +14,7 @@ import ChatBox from "@/components/ChatBox";
 import { useCreateConvoMutation } from "@/store/slices/conversationSlices";
 import { useRouter } from "next/router";
 
-const page = ({ params }) => {
+const Page = ({ params }) => {
   const [items, setItems] = useState();
   const { data, isSuccess, isLoading } = useGetItemQuery(params.id);
   const [conversations, setConversations] = useState([]);
@@ -262,4 +262,4 @@ const page = ({ params }) => {
   );
 };
 
-export default page;
+export default Page;

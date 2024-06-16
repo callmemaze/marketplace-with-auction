@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { useRouter } from "next/router";
 
-const page = ({ params }) => {
+const Page = ({ params }) => {
   const [items, setItems] = useState();
   const [reBidStart, setReBidStart] = useState(false);
   const [mode, setMode] = useState("");
@@ -209,7 +209,7 @@ const page = ({ params }) => {
               <TableBody>
                 {Object.keys(bidderInfo).map((x) => {
                   return (
-                    <TableRow>
+                    <TableRow key={x.bidder}>
                       <TableCell className="font-medium">{x}</TableCell>
                       <TableCell>{item?.startingPrice}</TableCell>
                       <TableCell>{bidderInfo[x]}</TableCell>
@@ -301,4 +301,4 @@ const page = ({ params }) => {
   );
 };
 
-export default page;
+export default Page;
